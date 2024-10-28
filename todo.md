@@ -1,0 +1,6 @@
+- [x] fix double transcript issue caused by fs watch double yield
+- [ ] add /bin/clean to clear the storage directory
+- [ ] centralize whisper model path definition (it can differ across environments and is defined in multiple places)
+- [x] deprecate streamToFile and use voice.js
+- [x] assume whisper.cpp is available in path
+- [x] figure out how to change container command w/o rebuilding

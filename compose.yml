@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    volumes:
+      - ./storage:/app/storage
+    env_file: "compose.env"
+    command: "npm run start"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
