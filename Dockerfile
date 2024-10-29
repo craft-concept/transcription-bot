@@ -22,8 +22,11 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy whispercpp and add to path
-COPY --from=whispercpp /build /whisper.cpp
-RUN ln -s /whisper.cpp/main /usr/local/bin/whisper.cpp
+COPY --from=whispercpp /build /usr/local/share/whisper.cpp
+RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp
+
+# We bake the whipser model into the image, so might as well force this env var here :(
+ENV WHISPER_MODEL=/usr/local/share/whisper.cpp/models/ggml-tiny.en.bin
 
 WORKDIR /app
 

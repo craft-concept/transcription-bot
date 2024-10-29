@@ -5,14 +5,14 @@ import config from "./config.js";
 
 const execFile = util.promisify(ChildProcess.execFile);
 
-// Assumes whisper.cpp is in PATH
 // TODO: better filename?
+// Assumes whisper.cpp is in PATH
 async function execWhisper(wavFilename) {
   const outputFilename = `${wavFilename}.transcript`;
   const result = await execFile("whisper.cpp", [
     "--output-json",
     "--model",
-    config.whisper.model,
+    config.whisperModel,
     "--file",
     wavFilename,
     "--output-file",

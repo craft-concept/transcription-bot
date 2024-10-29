@@ -5,8 +5,5 @@ export default {
   appId: process.env.APP_ID,
   afterSilenceDuration: 1500,
   storageDir: Path.join(process.cwd(), "storage"),
-  whisper: {
-    command: process.env.WHISPER_COMMAND,
-    model: process.env.WHISPER_MODEL,
-  },
+  whisperModel: process.env.WHISPER_MODEL,
 };
