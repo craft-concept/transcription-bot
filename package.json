@@ -1,12 +1,10 @@
 {
   "name": "transcription-bot",
-  "packageManager": "yarn@4.3.1",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "nodemon -r dotenv/config src/index.js dotenv_config_path=dev.env",
     "dev-deploy-commands": "node -r dotenv/config src/deploy.js dotenv_config_path=dev.env",
-    "start": "node src/index.js",
     "deploy-commands": "node src/deploy.js"
   },
   "dependencies": {

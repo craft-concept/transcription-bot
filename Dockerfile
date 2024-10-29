@@ -1,4 +1,3 @@
-# FROM node:22.9.0 AS build_whispercpp
 FROM ubuntu:22.04 as whispercpp
 
 WORKDIR /build
@@ -43,6 +42,10 @@ RUN chown -R node:node storage
 # Run the application as Node user
 # EXPOSE 80
 USER node
+
+# Labels
+LABEL org.opencontainers.image.source=https://github.com/craft-concept/transcription-bot
+
 CMD ["node", "src/index.js"]
 
 

@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    image: "transcription_bot"
     volumes:
       - ./storage:/app/storage
     env_file: "compose.env"
