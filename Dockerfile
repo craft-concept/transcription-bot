@@ -43,9 +43,6 @@ RUN chown -R node:node storage
 # EXPOSE 80
 USER node
 
-# Labels
-LABEL org.opencontainers.image.source=https://github.com/craft-concept/transcription-bot
-
 CMD ["node", "src/index.js"]
 
 
