@@ -2,7 +2,9 @@
   "name": "transcription-bot",
   "private": true,
   "type": "module",
+  "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config src/index.js dotenv_config_path=dev.env",
     "dev-deploy-commands": "node -r dotenv/config src/deploy.js dotenv_config_path=dev.env",
     "deploy-commands": "node src/deploy.js"
