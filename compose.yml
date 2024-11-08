@@ -2,20 +2,13 @@ services:
   app:
     build:
       context: .
-      dockerfile: deploy/cuda.Dockerfile
-    image: "transcription_bot"
+      dockerfile: Dockerfile
+    image: "transcription-bot"
     volumes:
       - ./storage:/app/storage
       - models:/models
     env_file: "compose.env"
     command: "npm run start"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     develop:
       watch:
         - action: sync

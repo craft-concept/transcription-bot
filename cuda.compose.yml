@@ -3,9 +3,10 @@ services:
     build:
       context: .
       dockerfile: deploy/cuda.Dockerfile
-    image: "transcription_bot"
+      platform: linux/amd64
+    image: "transcription-bot"
     volumes:
-      - ./storage:/app/storage
+      - ../storage:/app/storage
       - models:/models
     env_file: "compose.env"
     command: "npm run start"
