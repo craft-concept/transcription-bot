@@ -4,6 +4,7 @@ import { joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import * as Voice from "../voice.js";
 import * as Recording from "../recording.js";
 import * as Transcription from "../transcription.js";
+import Queue from "../queue.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -30,6 +31,16 @@ export default {
       adapterCreator: channel.guild.voiceAdapterCreator,
     });
 
+    const queue = new Queue(async ({ recording, user }) => {
+      const transcript = await Transcription.transcribe(recording);
+
+      if (!transcript) return;
+      channel.send({
+        content: `**${user.username}**: ${transcript}`,
+        flags: MessageFlags.SuppressNotifications,
+      });
+    })
+
     connection.on(VoiceConnectionStatus.Ready, async () => {
       const { receiver } = connection;
 
@@ -39,13 +50,7 @@ export default {
         // Prevent parallel recordings to avoid duplicate transcriptions
         if (Recording.isRecording(receiver, user)) return;
         const recording = await Recording.record(receiver, user);
-        const transcript = await Transcription.transcribe(recording);
-
-        if (!transcript) return;
-        channel.send({
-          content: `**${user.username}**: ${transcript}`,
-          flags: MessageFlags.SuppressNotifications,
-        });
+        queue.enqueue({ recording, user })
       });
     });
     connection.on("stateChange", (oldState, newState) => {
