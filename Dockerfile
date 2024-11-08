@@ -1,48 +1,28 @@
-FROM ubuntu:22.04 as whispercpp
+ARG UBUNTU_VERSION=24.04
+# This needs to generally match the container host's environment.
+ARG CUDA_VERSION=12.6.2
+# Target the CUDA runtime image
+ARG BASE_CUDA_RUN_CONTAINER=nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
 
-WORKDIR /build
+FROM whispercpp-cuda as whispercpp
 
-# Make whispercpp
-RUN apt-get update && \
-  apt-get install -y build-essential curl \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
-
-RUN curl -Lo whisper.cpp.tar.gz https://github.com/ggerganov/whisper.cpp/archive/refs/tags/v1.7.1.tar.gz && \
-  tar -xvzf whisper.cpp.tar.gz --strip-components 1 && \
-  make && \
-  sh ./models/download-ggml-model.sh tiny.en 
-
-# TODO: this image is large, can we use alpine or slim instead?
-FROM node:22.9.0 as base
-
-# Install runtime whisper dependencies
-RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y ffmpeg && \
-  rm -rf /var/lib/apt/lists /var/cache/apt/archives
+FROM ${BASE_CUDA_RUN_CONTAINER} as app
 
 # Copy whispercpp and add to path
-COPY --from=whispercpp /build /usr/local/share/whisper.cpp
-RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp
-
-# We bake the whipser model into the image, so might as well force this env var here :(
-ENV WHISPER_MODEL=/usr/local/share/whisper.cpp/models/ggml-tiny.en.bin
+COPY --from=whispercpp /app /usr/local/share/whisper.cpp
 
 WORKDIR /app
-
-# Copy package.json(s) and install first for better layer caching
 COPY package*.json .
-RUN npm install
+
+RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential ffmpeg curl && \
+    curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
+    apt-get install -y nodejs  && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
+    npm install
 
 # Copy source
 COPY  . .
 
-# Give ownership of runtime directories to Node user
-RUN chown -R node:node storage
-
-# Run the application as Node user
-# EXPOSE 80
-USER node
-
 CMD ["node", "src/index.js"]
-
-
