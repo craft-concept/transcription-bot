@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 as whispercpp
+FROM ubuntu:22.04 as whispercpp
 
 WORKDIR /build
 
@@ -9,8 +9,7 @@ RUN apt-get update && \
 
 RUN curl -Lo whisper.cpp.tar.gz https://github.com/ggerganov/whisper.cpp/archive/refs/tags/v1.7.1.tar.gz && \
   tar -xvzf whisper.cpp.tar.gz --strip-components 1 && \
-  make && \
-  sh ./models/download-ggml-model.sh tiny.en
+  make
 
 FROM node:23 as app
 
@@ -22,6 +21,7 @@ WORKDIR /app
 COPY package*.json .
 
 RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp && \
+  ln -s /usr/local/share/whisper.cpp/models/download-ggml-model.sh /usr/local/bin/download-ggml-model.sh && \
   apt-get update -qq && \
   apt-get install --no-install-recommends -y curl ffmpeg && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives && \

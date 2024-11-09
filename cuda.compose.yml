@@ -2,9 +2,11 @@ services:
   app:
     build:
       context: .
-      dockerfile: deploy/cuda.Dockerfile
-      platform: linux/amd64
-    image: "transcription-bot"
+      dockerfile: cuda.Dockerfile
+      platforms: 
+        - linux/amd64
+    image: "transcription-bot:cuda"
+    platform: linux/amd64
     volumes:
       - ../storage:/app/storage
       - models:/models

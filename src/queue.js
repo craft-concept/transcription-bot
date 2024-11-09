@@ -6,7 +6,6 @@ export default class Queue {
     }
 
     enqueue(item) {
-        console.log("enqueueing item:", item)
         this.queue.push(item)
         this.process()
     }
@@ -17,10 +16,7 @@ export default class Queue {
 
         while (this.queue.length) {
             const item = this.queue.shift()
-            console.log("processing item:", item)
             await this.handler(item)
-            console.log("processed item:", item)
-
         }
 
         this.isProcessing = false

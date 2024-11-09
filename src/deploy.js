@@ -6,8 +6,12 @@ async function deploy() {
   const rest = new REST().setToken(config.appToken);
   const commandData = commands.values().map((c) => c.data.toJSON());
   const result = await rest.put(Routes.applicationCommands(config.appId), {
-    body: commandData,
+    body: Array.from(commandData)
   });
+
+  // TODO: make this useful
+  if (result.length) console.log("Success!")
+  else console.log("Something went wrong!")
 }
 
-deploy();
+await deploy();

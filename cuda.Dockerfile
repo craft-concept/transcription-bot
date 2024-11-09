@@ -10,6 +10,9 @@ FROM ${BASE_CUDA_BUILD_CONTAINER} AS build
 
 WORKDIR /app
 
+# `make -j` makes my computers explode, so just use 6 cores.
+ARG MAKE_CONCURRENCY=6
+
 ARG CUDA_DOCKER_ARCH=all
 # Set nvcc architecture
 ENV CUDA_DOCKER_ARCH=${CUDA_DOCKER_ARCH}
@@ -21,7 +24,7 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
   curl -Lo whisper.cpp.tar.gz https://github.com/ggerganov/whisper.cpp/archive/refs/tags/v1.7.1.tar.gz && \
   tar -xvzf whisper.cpp.tar.gz --strip-components 1 && \
-  make -j 6 main quantize
+  make -j ${MAKE_CONCURRENCY} main quantize
 
 FROM ${BASE_CUDA_RUN_CONTAINER} AS app
 
@@ -34,6 +37,7 @@ WORKDIR /app
 COPY package*.json .
 
 RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp && \
+  ln -s /usr/local/share/whisper.cpp/models/download-ggml-model.sh /usr/local/bin/download-ggml-model.sh && \
   apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential ffmpeg curl && \
   curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \

@@ -14,6 +14,7 @@
 
 .DS_STORE
 *.env
+!example.env
 node_modules
 
 config/credentials/*
