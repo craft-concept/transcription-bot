@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      tags:
+        - transcription-bot
+        - ghcr.io/craft-concept/transcription-bot
     image: "transcription-bot"
     volumes:
       - ./storage:/app/storage

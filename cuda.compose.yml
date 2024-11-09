@@ -3,8 +3,11 @@ services:
     build:
       context: .
       dockerfile: cuda.Dockerfile
-      platforms: 
+      platforms:
         - linux/amd64
+      tags:
+        - transcription-bot:cuda
+        - ghcr.io/craft-concept/transcription-bot:cuda
     image: "transcription-bot:cuda"
     platform: linux/amd64
     volumes:
