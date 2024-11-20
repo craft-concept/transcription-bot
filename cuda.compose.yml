@@ -2,19 +2,20 @@ services:
   app:
     build:
       context: .
-      dockerfile: cuda.Dockerfile
-      platforms:
-        - linux/amd64
+      dockerfile: Dockerfile
       tags:
-        - transcription-bot:cuda
-        - ghcr.io/craft-concept/transcription-bot:cuda
-    image: "transcription-bot:cuda"
-    platform: linux/amd64
+        - transcription-bot
+        - ghcr.io/craft-concept/transcription-bot
+    image: "transcription-bot"
     volumes:
-      - ../storage:/app/storage
-      - models:/models
+      - ./storage:/app/storage
     env_file: "compose.env"
-    command: "npm run start"
+
+  whisper:
+    image: "ghcr.io/craft-concept/whisper.cpp:cuda"
+    volumes:
+      - models:/models
+    command: ["./server", "-m", "/models/large-v3-turbo-q5_0.bin"]
     deploy:
       resources:
         reservations:
@@ -22,11 +23,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
+
 volumes:
   models:
     external: true

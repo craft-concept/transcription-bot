@@ -9,14 +9,14 @@ services:
     image: "transcription-bot"
     volumes:
       - ./storage:/app/storage
-      - models:/models
     env_file: "compose.env"
-    command: "npm run start"
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
+
+  whisper:
+    image: "ghcr.io/craft-concept/whisper.cpp"
+    volumes:
+      - models:/models
+    command: ["./server", "-m", "/models/large-v3-turbo-q5_0.bin"]
+
 volumes:
   models:
     external: true

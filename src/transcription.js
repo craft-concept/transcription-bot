@@ -1,35 +1,40 @@
-import util from "node:util";
-import ChildProcess from "node:child_process";
 import Fs from "node:fs/promises";
 import config from "./config.js";
 
-const execFile = util.promisify(ChildProcess.execFile);
-
-// TODO: better filename?
-// Assumes whisper.cpp is in PATH
-async function execWhisper(wavFilename) {
-  const outputFilename = `${wavFilename}.transcript`;
-  const result = await execFile("whisper.cpp", [
-    "--output-json",
-    "--model",
-    config.whisperModel,
-    "--file",
-    wavFilename,
-    "--output-file",
-    outputFilename,
-  ]);
-  // We force json output
-  return `${outputFilename}.json`;
-}
-
-export async function parseTranscript(filename) {
-  const file = await Fs.readFile(filename);
-  const json = JSON.parse(file);
-  const transcript = json.transcription.reduce((accum, part) => (accum += part.text), "");
-  return transcript;
-}
-
 export async function transcribe(filename) {
-  const outputFilename = await execWhisper(filename);
-  return parseTranscript(outputFilename);
+  const result = await inference(filename)
+  console.log(result)
+  return
+}
+
+async function inference(filename) {
+  const request = await inferenceRequest(filename)
+  return send(request)
+}
+
+async function send(request) {
+  const response = await fetch(request);
+  return response.json();
+}
+
+async function inferenceRequest(recording) {
+  const form = await formData(recording);
+  return new Request(`${config.whisperUrl}/inference`, {
+    method: "POST",
+    body: form,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+}
+
+async function formData(recording) {
+  const form = new FormData();
+  form.set("file", await readBlob(recording.filename), "test.wav");
+  return form;
+}
+
+async function readBlob(filename) {
+  const buffer = await Fs.readFile(filename);
+  return new Blob([buffer]);
 }
