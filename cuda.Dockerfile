@@ -21,10 +21,11 @@ ENV GGML_CUDA=1
 
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential curl && \
-  rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
-  curl -Lo whisper.cpp.tar.gz https://github.com/ggerganov/whisper.cpp/archive/refs/tags/v1.7.1.tar.gz && \
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+RUN curl -Lo whisper.cpp.tar.gz https://github.com/ggerganov/whisper.cpp/archive/refs/tags/v1.7.1.tar.gz && \
   tar -xvzf whisper.cpp.tar.gz --strip-components 1 && \
-  make -j ${MAKE_CONCURRENCY} main quantize
+  make -j ${MAKE_CONCURRENCY}
 
 FROM ${BASE_CUDA_RUN_CONTAINER} AS app
 
@@ -33,17 +34,18 @@ ARG NODE_VERSION=23
 # Copy whispercpp and add to path
 COPY --from=build /app /usr/local/share/whisper.cpp
 
-WORKDIR /app
-COPY package*.json .
-
 RUN ln -s /usr/local/share/whisper.cpp/main /usr/local/bin/whisper.cpp && \
   ln -s /usr/local/share/whisper.cpp/models/download-ggml-model.sh /usr/local/bin/download-ggml-model.sh && \
   apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential ffmpeg curl && \
   curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
   apt-get install -y nodejs && \
-  rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
-  npm install
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+WORKDIR /app
+
+COPY package*.json .
+RUN npm install
 
 # Copy source
 COPY  .. .
